@@ -8,6 +8,11 @@
 #include "node.h"
 
 class TypingMachine {
+ private:
+  Node* mCursor;
+	Node* mHead;
+	Node* mEnd;
+
  public:
   TypingMachine();
   void HomeKey();
