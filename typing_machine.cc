@@ -3,85 +3,131 @@
 #include "typing_machine.h"
 
 TypingMachine::TypingMachine() {
-	mCursor = nullptr;
+	mCursor.setPrev(nullptr);
+	mCursor.setNext(nullptr);
 	mHead = nullptr;
 	mEnd = nullptr;
+	count = 0;
   return;
 }
 
+
 void TypingMachine::HomeKey() {
-	mCursor = mHead;
+	mCursor.setPrev(nullptr);
+	mCursor.setNext(mHead);
   return;
 }
 
 void TypingMachine::EndKey() {
-	mCursor = mEnd;
+	mCursor.setPrev(mEnd);
+	mCursor.setNext(nullptr);
   return;
 }
 
 void TypingMachine::LeftKey() {
-	if (mCursor->GetPreviousNode() != nullptr) {
-		mCursor = mCursor->GetPreviousNode();
+	if (mCursor.getPrev() != nullptr) {
+		mCursor.setNext(mCursor.getPrev());
+		mCursor.setPrev(mCursor.getPrev()->GetPreviousNode());
 	}
   return;
 }
 
 void TypingMachine::RightKey() {
-	if (mCursor != nullptr) {
-		mCursor = mCursor->GetNextNode();
+	if (mCursor.getNext() != nullptr) {
+		mCursor.setPrev(mCursor.getNext());
+		mCursor.setNext(mCursor.getNext()->GetNextNode());
 	}
   return;
 }
 
 bool TypingMachine::TypeKey(char key) {
-	if (key < 0x20 || key > 0x7E) {
+	if (key < 0x20 || key > 0x7E || count > 100) {
 		return false;
 	}
 
-	if (mHead == nullptr) {
-		mCursor = new Node(key);
-		mHead = nullptr;
-		mEnd = mCursor;
+	if (mCursor.getPrev() == nullptr && mCursor.getNext() == nullptr) {
+		mCursor.setPrev(new Node(key));
+		mHead = mCursor.getPrev();
+		mEnd = mCursor.getPrev();
+		count = 1;
 	}
-	else if (mCursor == nullptr) {
-		mEnd->InsertNextNode(key);
-		mEnd = mEnd->GetNextNode();
+	else if (mCursor.getPrev() == nullptr) {
+		Node* next = mCursor.getNext();
+		next->InsertPreviousNode(key);
+		mCursor.setPrev(next->GetPreviousNode());
+		mHead = next->GetPreviousNode();
 	}
-	else {
-		mCursor->InsertPreviousNode(key);
-		if (mHead == mCursor) {
-			mHead = mCursor->GetPreviousNode();
+	else{
+		Node* prev = mCursor.getPrev();
+		prev->InsertNextNode(key);
+		mCursor.setPrev(prev->GetNextNode());
+		mEnd = prev->GetNextNode();
+		if (mCursor.getNext() != nullptr) {
+			mCursor.setNext(mCursor.getPrev()->GetNextNode());
 		}
 	}
+	count++;
+	
   return true;
 }
 
 bool TypingMachine::EraseKey() {
-	if (mCursor->GetNextNode() == nullptr) {
+	if (mCursor.getPrev() == nullptr) {
 		return false;
 	}
+	if (mHead == mEnd && mCursor.getNext() == nullptr) {
+		delete mHead;
+		mHead = mEnd = nullptr;
+		mCursor.setNext(nullptr);
+		mCursor.setPrev(nullptr);
+		count = 0;
+		return true;
+	}
 
-	mCursor->ErasePreviousNode();
+	Node* temp = mCursor.getPrev();
+	mCursor.setPrev(temp->GetPreviousNode());
+
+	if (mCursor.getNext() != nullptr) {
+		mCursor.getNext()->ErasePreviousNode();
+		if (mCursor.getNext()->GetPreviousNode() == nullptr) {
+			mHead = mCursor.getNext();
+			mCursor.setPrev(nullptr);
+		}
+	}
+	else {
+		Node* prevOfEnd = temp->GetPreviousNode();
+		temp->GetPreviousNode()->EraseNextNode();
+		if (prevOfEnd->GetPreviousNode() == nullptr && prevOfEnd->GetNextNode() == nullptr) {
+			mEnd = mHead;
+		}
+		else {
+			mEnd = prevOfEnd->GetNextNode();
+		}
+	}
+	count--;
 	
   return true;
 }
 
 std::string TypingMachine::Print(char separator) {
 	std::string str = "";
-
-	Node* cur = mHead;
-	if (cur == nullptr && separator != 0) {
-	  str.push_back(separator);
-		cur = mCursor;
+	if (mHead == nullptr)	{
+		if(separator != 0)	str.append(1, separator);
+		return str;
 	}
-
-	while (cur != nullptr) {
-		str.push_back(cur->GetData());
-		cur = cur->GetNextNode();
-		if (mCursor == cur && separator != 0) {
-			str.push_back(separator);
+	
+	Node* cur = mHead;
+	do{
+		if (mCursor.getNext() == cur && separator != 0) {
+			str.append(1, separator);
 		}
-	} 
+		str.append(1, cur->GetData());
+		cur = cur->GetNextNode();
+	} while(cur != nullptr);
+	
+	if (mCursor.getNext() == nullptr && separator != 0) {
+		str.append(1, separator);
+	}
 
 	return str;
 }

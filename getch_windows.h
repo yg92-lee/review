@@ -12,20 +12,20 @@ const int KEY_RIGHT = 260;
 const int KEY_HOME  = 261;
 const int KEY_END   = 262;
 const int KEY_DEL   = 8;
+const int KEY_DEL2 = 127;
 
 int GetKeyInput() {
   int v = _getch();
-  if (v == 27) {
-    v = _getch();
-    if (v != 91) return v;
+  if (v == 224) {
     v = _getch();
     switch (v) {
-      case 65: return KEY_UP;
-      case 66: return KEY_DOWN;
-      case 67: return KEY_RIGHT;
-      case 68: return KEY_LEFT;
-      case 72: return KEY_HOME;
-      case 70: return KEY_END;
+      case 72: return KEY_UP;
+      case 80: return KEY_DOWN;
+      case 77: return KEY_RIGHT;
+      case 75: return KEY_LEFT;
+      case 71: return KEY_HOME;
+      case 79: return KEY_END;
+      case KEY_DEL2: return KEY_DEL;
       default: return v;
     }
   }

@@ -7,11 +7,23 @@
 
 #include "node.h"
 
+class Cursor{
+private:
+	Node* mPrev;
+	Node* mNext;
+public:
+	Node* getPrev() { return mPrev; }
+	Node* getNext() { return mNext; }
+	void setPrev(Node* node)	{ mPrev = node; }
+	void setNext(Node* node)	{ mNext = node; }
+};
+
 class TypingMachine {
  private:
-  Node* mCursor;
 	Node* mHead;
 	Node* mEnd;
+	Cursor mCursor;
+	int count;
 
  public:
   TypingMachine();
