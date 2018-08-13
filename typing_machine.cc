@@ -61,9 +61,8 @@ bool TypingMachine::TypeKey(char key) {
 		Node* prev = mCursor.getPrev();
 		prev->InsertNextNode(key);
 		mCursor.setPrev(prev->GetNextNode());
-		mEnd = prev->GetNextNode();
-		if (mCursor.getNext() != nullptr) {
-			mCursor.setNext(mCursor.getPrev()->GetNextNode());
+		if (mCursor.getNext() == nullptr) {
+			mEnd = prev->GetNextNode();
 		}
 	}
 	count++;
@@ -75,7 +74,7 @@ bool TypingMachine::EraseKey() {
 	if (mCursor.getPrev() == nullptr) {
 		return false;
 	}
-	if (mHead == mEnd && mCursor.getNext() == nullptr) {
+	if (mHead == mEnd && (mCursor.getNext() == nullptr || mCursor.getPrev() == nullptr)) {
 		delete mHead;
 		mHead = mEnd = nullptr;
 		mCursor.setNext(nullptr);
@@ -91,17 +90,20 @@ bool TypingMachine::EraseKey() {
 		mCursor.getNext()->ErasePreviousNode();
 		if (mCursor.getNext()->GetPreviousNode() == nullptr) {
 			mHead = mCursor.getNext();
-			mCursor.setPrev(nullptr);
+			//mCursor.setPrev(nullptr);
 		}
 	}
 	else {
 		Node* prevOfEnd = temp->GetPreviousNode();
-		temp->GetPreviousNode()->EraseNextNode();
-		if (prevOfEnd->GetPreviousNode() == nullptr && prevOfEnd->GetNextNode() == nullptr) {
-			mEnd = mHead;
-		}
-		else {
-			mEnd = prevOfEnd->GetNextNode();
+		if (prevOfEnd != nullptr) {
+			prevOfEnd->EraseNextNode();
+
+			if (prevOfEnd->GetPreviousNode() == nullptr) {
+				mEnd = mHead;
+			}
+			else if (prevOfEnd->GetNextNode() == nullptr) {
+				mEnd = prevOfEnd;
+			}
 		}
 	}
 	count--;
