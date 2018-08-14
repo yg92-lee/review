@@ -7,23 +7,18 @@
 
 #include "node.h"
 
-class Cursor{
-private:
-	Node* mPrev;
-	Node* mNext;
-public:
-	Node* getPrev() { return mPrev; }
-	Node* getNext() { return mNext; }
-	void setPrev(Node* node)	{ mPrev = node; }
-	void setNext(Node* node)	{ mNext = node; }
-};
+#define MAX_TYPED_TEXT_LENGTH 100
+#define NULL_CHAR '\0'
 
 class TypingMachine {
  private:
-	Node* mHead;
-	Node* mEnd;
-	Cursor mCursor;
-	int count;
+  Node* mHead;
+  Node* mTail;
+  Node* mCursor;
+  int count;
+
+  bool IsValidKey(char key);
+  bool CanType();
 
  public:
   TypingMachine();
