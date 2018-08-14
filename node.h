@@ -6,9 +6,9 @@
 class Node {
 private:
   char mChar;
-	Node* mPrevNode;
-	Node* mNextNode;
-	
+  Node* mPrevNode;
+  Node* mNextNode;
+  
  public:
   explicit Node(char data);
   char GetData();
